@@ -31,7 +31,11 @@ public class PingWsHandler implements WsMessageHandler {
         if (connection == null || connection.session() != context.session()) {
             return;
         }
-        // TODO Lv 11: presenceService.heartbeat()에 월드 ID와 현재 연결 ID를 전달합니다.
-        // TODO Lv 11: broadcaster.sendTo()로 현재 세션에 PongResponse를 보냅니다.
+        // Redis 접속 정보를 갱신
+        // 클라이언트가 보내는 ping=생존 신호(신호가 나타날 때마다 만료시간 재설정)
+        presenceService.heartbeat(context.worldId(), connection.connectionId());
+        // pong은 ping을 보낸 연결에만 응답
+        // 특정 세션 하나에만 보내는 sendTo() 사용
+        broadcaster.sendTo(context.session(), new PongResponse());
     }
 }

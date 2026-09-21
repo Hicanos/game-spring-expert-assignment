@@ -55,7 +55,9 @@ public class MessageRouter {
             return;
         }
         try {
-            // TODO Lv 11: handler에 context와 message를 전달해 handle()을 호출합니다.
+            // context(기존 요청)과 파싱된 JSON(message)을 넘겨 실제 처리를 위임
+            // handle()이 던지는 예외들: try-catch로 ActionQueueOverflowException/IllegalArgumentException/그 외 예외를 각각의 오류 코드로 변환
+            handler.handle(context, message);
         } catch (ActionQueueOverflowException exception) {
             log.warn("액션 큐 상한 초과로 거부: type={}, world={}, nickname={}",
                     type, context.worldId(), context.nickname());
