@@ -19,8 +19,14 @@ public class PlayerService {
 
     @Transactional
     public void createPlayer(CreatePlayerRequest request) {
-        // TODO Lv 3: 닉네임 중복을 확인하고 플레이어를 저장합니다.
-        throw new UnsupportedOperationException("Lv 3: 플레이어 등록을 구현하세요.");
+        // 저장 전 닉네임 중복 먼저 확인, 대부분의 중복 요청은 DB에 INSERT를 시도하지도 않고 거절
+        if (playerRepository.existsByNickname(request.getNickname())) {
+            throw new ConflictException("DUPLICATE_NICKNAME");
+        }
+        // 중복이 아니면 저장. 두 요청이 동시에 이 지점을 통과하는 경쟁 상태는
+        // savePlayer() 안에서 DB의 UNIQUE 제약 위반(DataIntegrityViolationException)을 잡아
+        // ConflictException으로 변환
+        savePlayer(new Player(request.getNickname()));
     }
 
     private void savePlayer(Player player) {
