@@ -19,8 +19,14 @@ public class WorldChatController {
 
     private final RecentChatQueryService chatService;
 
-    // TODO Lv 6: API 명세에 맞는 요청 매핑과 응답을 구현합니다.
-    public ResponseEntity<List<ChatMessageResponse>> chats(Long worldId, int limit) {
-        return ResponseEntity.ok(List.of());
+    // API 명세: GET /worlds/{worldId}/chats?limit=50, 성공 200.
+    // {worldId}=경로 변수=> @PathVariable
+    // limit=>선택 파라미터이므로 @RequestParam(defaultValue = "50")
+    // 쿼리스트링에 limit가 없어도 자동으로 50이 적용=>별도 null 체크 불필요.
+    @GetMapping("/worlds/{worldId}/chats")
+    public ResponseEntity<List<ChatMessageResponse>> chats(
+            @PathVariable Long worldId,
+            @RequestParam(defaultValue = "50") int limit) {
+        return ResponseEntity.ok(chatService.getRecentMessages(worldId, limit));
     }
 }
