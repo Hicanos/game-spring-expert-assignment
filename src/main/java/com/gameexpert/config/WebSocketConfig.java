@@ -23,8 +23,11 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        // TODO Lv 8: 제공된 인터셉터를 핸들러 등록에 연결합니다.
+        // registerWebSocketHandlers()=>핸들러(GameWebSocketHandler)를 URL 패턴에 연결만 함
+        // NicknameHandshakeInterceptor=>addInterceptors()로 명시적으로 등록해야 실제 연결 요청마다 beforeHandshake() 호출.
+        // 인터셉터 클래스가 빈으로 등록되어 있어도 핸들러 등록 체인 미연결 시 호출 불가
         registry.addHandler(gameWebSocketHandler, "/ws/worlds/{worldId}")
+                .addInterceptors(nicknameInterceptor)
                 .setAllowedOriginPatterns(properties.wsAllowedOrigins().toArray(String[]::new));
     }
 }
