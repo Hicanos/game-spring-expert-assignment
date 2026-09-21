@@ -52,8 +52,10 @@ public class NicknameHandshakeInterceptor implements HandshakeInterceptor {
             return true;
         }
 
-        // TODO Lv 7: 닉네임으로 플레이어를 조회합니다. 없으면 null을 사용합니다.
-        Player player = null;
+        // 닉네임으로 등록된 플레이어 조회
+        // 등록되지 않은 닉네임이면 Optional이 비어있음=>orElse(null)로 player를 null 처리
+        // 바로 아래에서 4000(닉네임 누락/미등록)으로 거절합니다.
+        Player player = playerRepository.findByNickname(nickname).orElse(null);
         if (player == null) {
             attributes.put(ATTR_ERROR_CODE, 4000);
             return true;
@@ -64,14 +66,18 @@ public class NicknameHandshakeInterceptor implements HandshakeInterceptor {
             attributes.put(ATTR_ERROR_CODE, 4001);
             return true;
         }
-        // TODO Lv 7: worldId로 월드를 조회합니다. 없으면 null을 사용합니다.
-        World world = null;
+        // worldId로 실제 존재하는 월드 조회. 없으면 world==null
+        // 4001(접속할 수 없는 월드)로 거절
+        World world = worldRepository.findById(worldId).orElse(null);
         if (world == null || worldRepository.isDimensionChild(worldId)) {
             attributes.put(ATTR_ERROR_CODE, 4001);
             return true;
         }
 
-        // TODO Lv 7: nickname과 worldId를 ATTR_NICKNAME, ATTR_WORLD_ID 키로 attributes에 저장합니다.
+        // 닉네임과 월드가 모두 유효한 경우, 이후 메시지 처리에서
+        // 매 요청마다 DB를 다시 조회하지 않도록, 이번 연결에서 쓸 nickname과 worldId를 세션 속성에 저장
+        attributes.put(ATTR_NICKNAME, nickname);
+        attributes.put(ATTR_WORLD_ID, worldId);
 
         attributes.put(ATTR_PLAYER_ID, player.getId());
         attributes.put(ATTR_WORLD_SEED, (int) world.getSeed());
