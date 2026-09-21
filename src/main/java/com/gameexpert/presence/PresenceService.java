@@ -35,12 +35,17 @@ public class PresenceService implements com.gameexpert.api.PresenceOperations {
 
     public void join(Long worldId, String connectionId) {
         String key = key(worldId);
-        // TODO Lv 10: ZSet에 connectionId를 member로, expiresAt()을 score로 저장합니다.
+        // Sorted Set에 연결의 만료 시각(expiresAt())을 score, connectionId를 member로 저장
+        // onlineCount()에서 현재 시각보다 score가 작은(=이미 만료됨) member들을 removeRangeByScore()로 필터링
+        redisTemplate.opsForZSet().add(key, connectionId, expiresAt());
+        // 키 전체에 TTL 적용. 월드에 아무도 없어 heartbeat가 더 안 오면=>해당 키가 남지 않게함
         redisTemplate.expire(key, KEY_TTL);
     }
 
     public void leave(Long worldId, String connectionId) {
-        // TODO Lv 10: key(worldId)의 ZSet에서 connectionId를 제거합니다.
+        // 정상적으로 접속을 종료한 연결=>만료대기 없이 즉시 Sorted Set에서 제거
+        // remove()는 다른 월드나 다른 connectionId에는 영향을 주지 않음
+        redisTemplate.opsForZSet().remove(key(worldId), connectionId);
     }
 
     public void heartbeat(Long worldId, String connectionId) {
