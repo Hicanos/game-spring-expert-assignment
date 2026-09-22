@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class LocalChatSender {
     private final WorldBroadcaster broadcaster;
-
+    //채팅=같은 월드에 있는 모두가 봐야 함=broadcast()
     public void send(Long worldId, Object message) {
-        // TODO Lv 14: 같은 월드의 참여자에게 메시지를 전송합니다.
+        broadcaster.broadcast(worldId, message);
     }
 }
