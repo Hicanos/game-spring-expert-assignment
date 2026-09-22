@@ -7,7 +7,6 @@ import com.gameexpert.api.persistence.WorldAccess;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.gameexpert.engine.Difficulty;
-import com.gameexpert.world.WorldBaseline;
 import com.gameexpert.world.WorldGenerationProfile;
 import com.gameexpert.world.WorldGenerationProfiles;
 
